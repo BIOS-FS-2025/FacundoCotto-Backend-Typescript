@@ -1,0 +1,41 @@
+import dotenv from "dotenv";
+import { jwt } from "zod";
+
+dotenv.config();
+
+export const config = {
+  port: process.env.PORT ?? 3000,
+  dbUri: process.env.DB_URI ?? "mongodb://localhost:27017/mongodb-ts-app",
+  jwtSecret: process.env.JWT_SECRET ?? "default_secret",
+  twoFAExpirationMinutes: Number(process.env.TWO_FA_EXPIRATON_MINUTES) ?? 10,
+  emailJsServiceId: process.env.EMAIL_JS_SERVICE_ID ?? "",
+  emailJsUrl: process.env.EMAIL_JS_URL ?? "https://api.emailjs.com/api/v1.0/email/send",
+  emailJsPublicKey: process.env.EMAIL_JS_PUBLIC_KEY ?? "",
+  emailJsPrivateKey: process.env.EMAIL_JS_PRIVATE_KEY ?? "",
+  emailJsWelcomeTemplateId: process.env.EMAIL_JS_WELCOME_TEMPLATE_ID ?? "",
+  emailJsLoginTemplateId: process.env.EMAIL_JS_LOGIN_TEMPLATE_ID ?? "",
+};
+
+export const ERRORS = {
+  EXPIRED_CODE: "EXPIRED_CODE",
+  INVALID_CODE: "INVALID_CODE",
+  USER_ALREADY_EXISTS: "USER_ALREADY_EXISTS",
+  SERVER_ERROR: "SERVER_ERROR",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  UNAUTHORIZED: "UNAUTHORIZED",
+  INVALID_TOKEN: "INVALID_TOKEN",
+  FORBIDDEN: "FORBIDDEN",
+  BAD_REQUEST: "BAD_REQUEST",
+  CONFLICT: "CONFLICT",
+  UNPROCESSABLE_ENTITY: "UNPROCESSABLE_ENTITY",
+  TOO_MANY_REQUESTS: "TOO_MANY_REQUESTS",
+  SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE",
+  EMAIL_SEND_ERROR: "EMAIL_SEND_ERROR",
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+  USER_NOT_VERIFIED: "USER_NOT_VERIFIED",
+  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+  ACCOUNT_LOCKED: "ACCOUNT_LOCKED",
+  NO_PENDING_ERROR: "NO_PENDING_ERROR",
+};
