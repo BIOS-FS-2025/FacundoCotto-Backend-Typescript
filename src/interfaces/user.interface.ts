@@ -14,6 +14,6 @@ export interface RequestWithUserId extends Request {
 
 export interface UserInformation {
   email: string;
-  name: string;
+  name?: string; // Made name optional for login
   password: string; 
 }
