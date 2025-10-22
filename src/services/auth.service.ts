@@ -1,14 +1,25 @@
-import { UserInformation } from "../interfaces/user.interface";
+import { StringValue } from "ms";
+import {
+  Payload,
+  TwoFAInformation,
+  UserInformation,
+} from "../types/user.types";
 import { UserRepository } from "../repositories/user.repository";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 import { config } from "../config/env";
 import { sendByEmailJs } from "./email.service";
 import { User, UserInterface } from "../models/user.model";
-import { generate2FACode, get2FAExpirationTime } from "./twoFactor.service";
+import { generate2FACode, get2FAExpirationTime, verify2FACode } from "./twoFactor.service";
 
 export class AuthService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private jwtSecret: Secret = config.jwtSecret as Secret,
+    private jwtRefreshSecret: Secret = config.jwtRefreshSecret as Secret,
+    private jwtExpiresIn: StringValue = config.jwtExpiresIn as StringValue,
+    private jwtRefreshExpiresIn: StringValue = "7d" as StringValue
+  ) {}
 
   async register(userData: UserInformation) {
     const { email, name, password } = userData;
@@ -26,8 +37,6 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const token = this._generateToken(newUser._id.toString());
-
     this._emailjsWelocmeEmail(newUser.email, newUser.name);
 
     return {
@@ -37,7 +46,6 @@ export class AuthService {
         name: newUser.name,
         role: newUser.role || "user", // Default to 'user' if role is undefined
       },
-      token,
     };
   }
 
@@ -52,20 +60,29 @@ export class AuthService {
 
     this._isAccountLocked(user);
 
-    console.log("Account is not locked, proceeding with login", this._isAccountLocked(user));
+    console.log(this._isAccountLocked(user));
 
-    const isPasswordValid = await this._comparePassword(password, user.password);
+    const isPasswordValid = await this._comparePassword(
+      password,
+      user.password
+    );
+
+    console.log("Is password valid: ", isPasswordValid);
 
     await this._loginAttempts(user, isPasswordValid);
 
-    await this._generate2FACode(user);
-  
+    console.log("Login attempts reset or successful login.", await this._loginAttempts(user, isPasswordValid));
 
-    const updatedUser = await this.userRepository.findByEmail(email);
+    const { twoFactorCode, twoFactorExpires } = await this._generate2FACode(user);
 
-    console.log(updatedUser!.twoFactorCode);
+    console.log("Console log of user twoFactor: ", twoFactorCode, twoFactorExpires);
 
-    this._emailjs2FACodeEmail(user.email, user.name, updatedUser!.twoFactorCode!);
+
+    this._emailjs2FACodeEmail(
+      user.email,
+      user.name,
+      twoFactorCode
+    );
 
     return {
       user: {
@@ -73,14 +90,57 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role || "user", // Default to 'user' if role is undefined
-        FAcode: updatedUser!.twoFactorCode!,
+        FAcode: twoFactorCode,
       },
       message: "2FA code sent to email",
     };
   }
 
-  private _generateToken(userId: string): string {
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: "24h" });
+  async verify2FA(userData: TwoFAInformation) {
+    const { email, code } = userData;
+
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!user.twoFactorCode || !user.twoFactorExpires) {
+      throw new Error("2FA not enabled");
+    }
+
+    const validation = verify2FACode(code, user.twoFactorCode, user.twoFactorExpires);
+
+    if(!validation.isValid){
+      throw new Error(validation.message);
+    }
+
+    await this.userRepository.updateUser(user.email, {
+      isVerified: true,
+      updatedAt: new Date(),
+    }, {
+      twoFactorCode: "",
+      twoFactorExpires: new Date(0),
+    });
+
+    const tokenPayload: Payload = {
+      userId: user._id.toString(),
+      email: user.email,
+      name: user.name,
+    };
+
+    const accessToken = this._generateAccessToken(tokenPayload);
+    const refreshToken = this._generateRefreshToken(tokenPayload);
+
+    return {
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        isVerified: true,
+        createdAt: user.createdAt,
+      }
+    }
   }
 
   private async _emailjsWelocmeEmail(email: string, name: string) {
@@ -119,7 +179,11 @@ export class AuthService {
       const remainingMinutes = Math.ceil(
         (user.lockUntil.getTime() - new Date().getTime()) / (1000 * 60)
       );
-      throw new Error(`Account is locked. Try again in ${remainingMinutes} minutes`);
+      throw new Error(
+        `Account is locked. Try again in ${remainingMinutes} minutes`
+      );
+    }else {
+      return `Account is not locked.`;
     }
   }
 
@@ -142,10 +206,12 @@ export class AuthService {
         updateData.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
         updateData.loginAttempts = 0;
       }
-      await User.updateOne({ _id: user._id }, { $set: updateData });
+      await this.userRepository.updateUser(user.email, updateData);
 
       console.log("Console log of User", User);
       throw new Error("Invalid credentials");
+    } else {
+      return `Login successful for user: ${user.email}`;
     }
   }
 
@@ -157,21 +223,31 @@ export class AuthService {
       console.log("Console log of twoFactorCode: ", twoFactorCode);
       console.log("Console log of twoFactorExpires: ", twoFactorExpires);
 
-      await User.updateOne(
-        { _id: user._id },
-        {
-          $set: {
-            twoFactorCode: twoFactorCode ,
-            twoFactorExpires: twoFactorExpires,
-            loginAttempts: 0,
-            lockUntil: null,
-            updatedAt: new Date(),
-          },
-        }
-      );
-
-      return twoFactorCode;
+      await this.userRepository.updateUser(user.email, {
+        twoFactorCode: twoFactorCode,
+        twoFactorExpires: twoFactorExpires,
+        loginAttempts: 0,
+        lockUntil: null,
+        updatedAt: new Date(),
+      });
+      return { twoFactorCode, twoFactorExpires };
     }
+
+  }
+
+  private _generateAccessToken(payload: Payload) {
+    return jwt.sign(payload, this.jwtSecret, {
+      expiresIn: this.jwtExpiresIn || "10h",
+      issuer: "<your-issuer>",
+      audience: "<your-audience>",
+    });
+  }
+
+  private _generateRefreshToken(payload: Payload) {
+    return jwt.sign({ userId: payload.userId }, this.jwtRefreshSecret, {
+      expiresIn: this.jwtRefreshExpiresIn || "7d",
+      issuer: "<your-issuer>",
+      audience: "<your-audience>",
+    });
   }
 }
-

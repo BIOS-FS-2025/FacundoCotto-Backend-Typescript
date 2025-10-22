@@ -36,5 +36,15 @@ export const loginSchema = z.object({
   }),
 });
 
+export const verify2FASchema = z.object({
+  email: z.email({
+    message: "Invalid email address",
+  }),
+  code: z.string().length(6, {
+    message: "Code must be 6 characters long",
+  }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type Verify2FAInput = z.infer<typeof verify2FASchema>;

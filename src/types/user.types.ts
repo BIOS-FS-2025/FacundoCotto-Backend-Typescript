@@ -17,3 +17,14 @@ export interface UserInformation {
   name?: string; // Made name optional for login
   password: string; 
 }
+
+export interface TwoFAInformation {
+  email: string;
+  code: string;
+}
+
+export interface Payload { 
+  userId: string;
+  email: string;
+  name: string;
+}
