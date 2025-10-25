@@ -25,7 +25,7 @@ export class AuthController {
         .status(201)
         .json({ message: "User registered successfully", data: user });
     } catch (error) {
-      res.status(500).json({ message: "register failed" });
+      res.status(500).json({ message: "register failed, user already exists" });
     }
   };
 
@@ -36,12 +36,12 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      console.log("Login attempt for email: ", email);
-      console.log("Login attempt with password: ", password);
+      // console.log("Login attempt for email: ", email);
+      // console.log("Login attempt with password: ", password);
 
       const result = await this.authService.login({ email, password });
 
-      console.log("console log of result: ", result);
+      // console.log("console log of result: ", result);
 
       res
         .status(201)
@@ -53,7 +53,7 @@ export class AuthController {
       res
         .status(500)
         .json({
-          message: "Login failed. Pls check your credentials and try again.",
+          message: "Login failed. Please check your credentials and try again.",
         });
     }
   };
@@ -67,8 +67,10 @@ export class AuthController {
 
       const result = await this.authService.verify2FA({ email, code });
 
+      const { refreshToken, accessToken } = result;
+
       if (result) {
-        res.status(200).json({ message: "2FA verification successful" });
+        res.status(200).json({ message: "2FA verification successful", refreshToken, accessToken });
       } else {
         res.status(400).json({ message: "Invalid 2FA code" });
       }

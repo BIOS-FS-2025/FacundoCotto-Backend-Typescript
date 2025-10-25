@@ -1,4 +1,4 @@
-import { StringValue } from "ms";
+
 import {
   Payload,
   TwoFAInformation,
@@ -6,19 +6,17 @@ import {
 } from "../types/user.types";
 import { UserRepository } from "../repositories/user.repository";
 import bcrypt from "bcryptjs";
-import jwt, { Secret } from "jsonwebtoken";
+
 import { config } from "../config/env";
 import { sendByEmailJs } from "./email.service";
 import { User, UserInterface } from "../models/user.model";
 import { generate2FACode, get2FAExpirationTime, verify2FACode } from "./twoFactor.service";
+import { generateAccessToken, generateRefreshToken } from "./jwt.service";
 
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
-    private jwtSecret: Secret = config.jwtSecret as Secret,
-    private jwtRefreshSecret: Secret = config.jwtRefreshSecret as Secret,
-    private jwtExpiresIn: StringValue = config.jwtExpiresIn as StringValue,
-    private jwtRefreshExpiresIn: StringValue = "7d" as StringValue
+
   ) {}
 
   async register(userData: UserInformation) {
@@ -60,22 +58,22 @@ export class AuthService {
 
     this._isAccountLocked(user);
 
-    console.log(this._isAccountLocked(user));
+    // console.log(this._isAccountLocked(user));
 
     const isPasswordValid = await this._comparePassword(
       password,
       user.password
     );
 
-    console.log("Is password valid: ", isPasswordValid);
+    // console.log("Is password valid: ", isPasswordValid);
 
     await this._loginAttempts(user, isPasswordValid);
 
-    console.log("Login attempts reset or successful login.", await this._loginAttempts(user, isPasswordValid));
+    // console.log("Login attempts reset or successful login.", await this._loginAttempts(user, isPasswordValid));
 
     const { twoFactorCode, twoFactorExpires } = await this._generate2FACode(user);
 
-    console.log("Console log of user twoFactor: ", twoFactorCode, twoFactorExpires);
+    // console.log("Console log of user twoFactor: ", twoFactorCode, twoFactorExpires);
 
 
     this._emailjs2FACodeEmail(
@@ -91,6 +89,7 @@ export class AuthService {
         name: user.name,
         role: user.role || "user", // Default to 'user' if role is undefined
         FAcode: twoFactorCode,
+        FAexpires: twoFactorExpires,
       },
       message: "2FA code sent to email",
     };
@@ -129,8 +128,8 @@ export class AuthService {
       name: user.name,
     };
 
-    const accessToken = this._generateAccessToken(tokenPayload);
-    const refreshToken = this._generateRefreshToken(tokenPayload);
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
 
     return {
       user: {
@@ -139,8 +138,10 @@ export class AuthService {
         name: user.name,
         isVerified: true,
         createdAt: user.createdAt,
-      }
-    }
+      },
+      refreshToken,
+      accessToken,
+    };
   }
 
   private async _emailjsWelocmeEmail(email: string, name: string) {
@@ -208,7 +209,7 @@ export class AuthService {
       }
       await this.userRepository.updateUser(user.email, updateData);
 
-      console.log("Console log of User", User);
+      // console.log("Console log of User", User);
       throw new Error("Invalid credentials");
     } else {
       return `Login successful for user: ${user.email}`;
@@ -220,8 +221,8 @@ export class AuthService {
       const twoFactorCode = generate2FACode();
       const twoFactorExpires = get2FAExpirationTime(15);
 
-      console.log("Console log of twoFactorCode: ", twoFactorCode);
-      console.log("Console log of twoFactorExpires: ", twoFactorExpires);
+      // console.log("Console log of twoFactorCode: ", twoFactorCode);
+      // console.log("Console log of twoFactorExpires: ", twoFactorExpires);
 
       await this.userRepository.updateUser(user.email, {
         twoFactorCode: twoFactorCode,
@@ -235,19 +236,5 @@ export class AuthService {
 
   }
 
-  private _generateAccessToken(payload: Payload) {
-    return jwt.sign(payload, this.jwtSecret, {
-      expiresIn: this.jwtExpiresIn || "10h",
-      issuer: "<your-issuer>",
-      audience: "<your-audience>",
-    });
-  }
 
-  private _generateRefreshToken(payload: Payload) {
-    return jwt.sign({ userId: payload.userId }, this.jwtRefreshSecret, {
-      expiresIn: this.jwtRefreshExpiresIn || "7d",
-      issuer: "<your-issuer>",
-      audience: "<your-audience>",
-    });
-  }
 }

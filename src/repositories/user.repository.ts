@@ -1,4 +1,4 @@
-import { UserInformation } from "../types/user.types";
+import { Projection, UserInformation } from "../types/user.types";
 import { User, UserInterface } from "../models/user.model";
 import { ObjectId } from "mongoose";
 
@@ -28,4 +28,9 @@ export class UserRepository {
 
     return await User.findOneAndUpdate(query, update, { new: true });
   }
+
+  async findById(id: string | ObjectId): Promise<UserInterface | null> {
+    return await User.findById(id);
+  }
+
 }

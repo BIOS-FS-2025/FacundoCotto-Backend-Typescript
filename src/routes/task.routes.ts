@@ -1,18 +1,31 @@
-// import { Router } from "express";
+import { TaskController } from '../controllers/task.controller';
+import { requireAuth } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validate.middleware';
+import { createTaskSchema, editTaskSchema } from '../schemas/task.schema';
+import { TaskService } from '../services/task.service';
+import { TaskRepository } from './../repositories/task.repository';
+import { Router } from "express";
 
-// const router = Router();
+const router = Router();
 
-// // Create a new task
-// router.post("/create");
+const taskRepository = new TaskRepository();
+const taskService = new TaskService(taskRepository);
+const taskController = new TaskController(taskService);
 
-// // Edit a task
-// router.post("/edit/:id");
+// Create a new task
+router.post("/create", requireAuth, validate(createTaskSchema), taskController.createTask);
 
-// // Delete a task
-// router.delete("/delete/:id");
+// Edit a task
+router.post("/edit/:id", requireAuth, validate(editTaskSchema), taskController.editTask);
 
-// // Get all tasks for a user
-// router.get("/:id");
+// Delete a task
+router.delete("/delete/:id", requireAuth, taskController.deleteTask);
+
+// Get all tasks for a user
+router.get("/:userId", requireAuth, taskController.getTaskByUser);
+
+// Get task by id
+router.get("/id/:id", requireAuth, taskController.getTaskById);
 
 // // Get tasks by due date
 // router.get("/due-date/:date");
@@ -23,4 +36,4 @@
 // // Get tasks by subject
 // router.get("/subject/:subject");
 
-// export default router;
+export default router;
