@@ -151,15 +151,94 @@ const swaggerOptions: swaggerJSDoc.Options = {
                     }
                 }
             }
+        },
+        Task: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "The task's unique identifier",
+              example: "60af924f4f1a256f88e4b2c3",
+            },
+            title: {
+              type: "string",
+              description: "The title of the task",
+              example: "Complete the project documentation",
+            },
+            description: {
+              type: "string",
+              description: "Detailed description of the task",
+              example: "Finish writing the API documentation for the new project",
+            },
+            completed: {
+              type: "boolean",
+              description: "Status of the task",
+              example: false,
+            },
+            dueDate: {
+              type: "string",
+              format: "date-time",
+              description: "The due date of the task",
+              example: "2023-12-31T23:59:59.000Z",
+            },
+            priority: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: ["low", "medium", "high"],
+              },
+              description: "Priority levels of the task",
+              example: ["medium"],
+            },
+            subject: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: [
+                  "general",
+                  "math",
+                  "physics",
+                  "chemistry",
+                  "biology",
+                  "science",
+                  "history",
+                  "language",
+                  "art",
+                  "music",
+                  "physical_education",
+                  "computer_science",
+                  "other",
+                ],
+              },
+              description: "Subjects associated with the task",
+              example: ["general"],
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "The creation date of the task",
+              example: "2023-10-01T12:00:00.000Z",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "The last update date of the task",
+              example: "2023-10-05T15:30:00.000Z",
+            },
+          },
+          required: ["id", "title", "description", "completed", "dueDate", "priority", "subject", "createdAt", "updatedAt"],
         }
-
       },
     },
     tags: [
         {
             name: "Authentication",
             description: "Endpoints of authentication and user management"
-        },
+        }, 
+        {
+            name: "Tasks",
+            description: "Endpoints for task management"
+        }
     ],
   },
   apis: ["./src/docs/*.ts", "./src/routes/*.ts"],

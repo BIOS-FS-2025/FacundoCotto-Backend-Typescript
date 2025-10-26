@@ -28,7 +28,9 @@ const taskSchema = new Schema<TaskInterface>(
         dueDate: { type: Date, default: null },
         priority: { type: [String], enum: Object.values(Priority), default: [Priority.MEDIUM] },
         subject: { type: [String], enum: Object.values(Subject), default: [Subject.GENERAL] },
-    }
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now },
+    },
 );
 
 taskSchema.pre('save', function(next) {

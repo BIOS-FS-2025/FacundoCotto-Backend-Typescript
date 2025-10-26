@@ -44,7 +44,7 @@ export class TaskController {
       if (!tasks || tasks.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "No tasks found for the user",
+          message: "No tasks found",
         });
       }
 

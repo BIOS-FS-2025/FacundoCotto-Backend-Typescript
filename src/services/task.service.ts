@@ -66,6 +66,8 @@ export class TaskService {
     const getTask = await this.getTaskById(taskId, userId);
     if (!getTask) return null;
 
+    getTask.updatedAt = new Date();
+
     return await this.taskRepository.editTask(taskId, taskData);
   }
   
