@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { config, ERRORS } from "../config/env";
+import { config } from "../config/env";
 
 export const generate2FACode = () => {
     const code = crypto.randomInt(100000, 1000000);
@@ -23,7 +23,6 @@ export const verify2FACode = (inputCode: string, storedCode: string, expirationT
     if(is2FAExpired(expirationTime)){
         return {
             isValid: false,
-            error: ERRORS.EXPIRED_CODE,
             message: "Invalid or expired 2FA code"
         }
     }
@@ -32,7 +31,6 @@ export const verify2FACode = (inputCode: string, storedCode: string, expirationT
     if(inputCode !== storedCode){
         return {
             isValid: false,
-            error: ERRORS.INVALID_CODE,
             message: "Invalid or expired 2FA code"
         }
     }

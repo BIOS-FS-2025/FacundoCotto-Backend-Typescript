@@ -632,10 +632,6 @@ const swaggerOptions: swaggerJSDoc.Options = {
                     type: "string",
                     example: "Invalid token",
                   },
-                  error: {
-                    type: "string",
-                    example: "UNAUTHORIZED",
-                  }
                 },
               },
             },

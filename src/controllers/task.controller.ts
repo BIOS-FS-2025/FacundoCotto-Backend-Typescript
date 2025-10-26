@@ -1,5 +1,4 @@
 import { TaskService } from "./../services/task.service";
-import { ERRORS } from "../config/env";
 import { Request, Response } from "express";
 
 export class TaskController {
@@ -25,7 +24,6 @@ export class TaskController {
       res.status(500).json({
         success: false,
         message: "Internal Server Error",
-        error: ERRORS.INTERNAL_ERROR,
       });
     }
   };
@@ -45,12 +43,23 @@ export class TaskController {
           tasks,
         },
       });
-    } catch (error) {
-      console.error("Failed to retrieve tasks:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-      });
+    } catch (error: any) {
+      if (error.message === "No tasks found") {
+        return res.status(404).json({
+          success: false,
+          message: "No tasks found",
+        });
+      } else if (error.message === "Internal server error") {
+        return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
     }
   };
 
