@@ -1,8 +1,6 @@
-
-import { ObjectId } from "mongoose";
 import { TaskInterface } from "../models/task.model";
 import { TaskRepository } from "../repositories/task.repository";
-import { TaskInput } from "../types/task.types";
+import { TaskFilter, TaskInput } from "../types/task.types";
 
 
 export class TaskService {
@@ -48,15 +46,17 @@ export class TaskService {
   }
 
   // Get tasks by user
-  async getTasksByUser(userId: string): Promise<TaskInterface[]> {
-    const tasks = await this.taskRepository.getTasksByUser(userId);
+  async getTasksByUser(userId: string, filters: TaskFilter): Promise<TaskInterface[] | []> {
+
+    const tasks = await this.taskRepository.getTasksByUser(userId, filters);
 
     if (!tasks || tasks.length === 0) return [];
 
     return tasks.map((post) => ({
       ...post,
     }));
-  }
+
+}
 
   async editTask(
     userId: string,

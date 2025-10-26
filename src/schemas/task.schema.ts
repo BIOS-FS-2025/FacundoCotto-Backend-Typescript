@@ -92,7 +92,7 @@ export const editTaskSchema = z.object({
         }
       )
       .optional()
-  ),
+  ).optional(),
 });
 
 export const TaskIdValidations = z.object({
@@ -102,16 +102,16 @@ export const TaskIdValidations = z.object({
   .min(1, { message: "Task ID is required" }),
 });
 
+export const UserIdValidations = z.object({
+  userId: z
+  .string()
+  .trim()
+  .min(1, { message: "User ID is required" }),
+});
+
+export type UserId = z.infer<typeof UserIdValidations>;
 export type TaskId = z.infer<typeof TaskIdValidations>;
 export type Task = z.infer<typeof createTaskSchema>;
 export type EditTask = z.infer<typeof editTaskSchema>;
 
-// generate an example of a task in json format
-export const exampleTask: Task = {
-  title: "Example Task",
-  description: "This is an example task",
-  completed: true,
-  dueDate: new Date(),
-  priority: ["medium"],
-  subject: ["general"],
-};
+// generate 10 examples of tasks for testins in json format

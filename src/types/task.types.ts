@@ -1,3 +1,4 @@
+
 export enum Subject {
     GENERAL = "general",
     MATH = "math",
@@ -26,4 +27,22 @@ export interface TaskInput {
     dueDate?: Date | null;
     priority?: Priority[];
     subject?: Subject[];
+}
+
+export interface TaskFilter{
+    page?: number;
+    limit?: number;
+    search?: string;
+    dueDate?: Date | null;
+    priority?: Priority[];
+    subject?: Subject[];
+    sortBy?: string;  
+    sortOrder?: 'asc' | 'desc';
+    completed?: boolean;
+    $or?: { title?: { $regex: string; $options: string }; description?: { $regex: string; $options: string } }[];
+}
+
+export interface TasksQuery extends TaskFilter {
+    sortOptions?: { [key: string]: 1 | -1 };
+    skip?: number;
 }

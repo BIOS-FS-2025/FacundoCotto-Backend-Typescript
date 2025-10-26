@@ -22,3 +22,25 @@ export const validate = (schema: ZodObject) => {
         }
     }
 }
+
+export const validateId = (schema: ZodObject) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await schema.parseAsync(req.params);
+            next();
+        } catch (error) {
+            if (error instanceof ZodError) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Invalid ID",
+                    errors: error.issues.map((issue) => ({
+                        field: issue.path.join('.'),
+                        message: issue.message,
+                        code: issue.code,
+                    })),
+                });
+            }
+            next(error);
+        }
+    }
+}
