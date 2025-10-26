@@ -6,7 +6,7 @@ export interface ResponseBody {
   error?: string;
   data?: any;
   token?: string;
-  success?: boolean; 
+  success?: boolean;
   refreshToken?: string;
   accessToken?: string;
 }
@@ -18,7 +18,7 @@ export interface RequestWithUserId extends Request {
 export interface UserInformation {
   email: string;
   name?: string; // Made name optional for login
-  password: string; 
+  password: string;
 }
 
 export interface TwoFAInformation {
@@ -26,7 +26,7 @@ export interface TwoFAInformation {
   code: string;
 }
 
-export interface Payload { 
+export interface Payload {
   userId: string;
   email: string;
   name: string;

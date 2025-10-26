@@ -1,4 +1,3 @@
-
 import {
   Payload,
   TwoFAInformation,
@@ -6,18 +5,18 @@ import {
 } from "../types/user.types";
 import { UserRepository } from "../repositories/user.repository";
 import bcrypt from "bcryptjs";
-
 import { config } from "../config/env";
 import { sendByEmailJs } from "./email.service";
 import { User, UserInterface } from "../models/user.model";
-import { generate2FACode, get2FAExpirationTime, verify2FACode } from "./twoFactor.service";
+import {
+  generate2FACode,
+  get2FAExpirationTime,
+  verify2FACode,
+} from "./twoFactor.service";
 import { generateAccessToken, generateRefreshToken } from "./jwt.service";
 
 export class AuthService {
-  constructor(
-    private userRepository: UserRepository,
-
-  ) {}
+  constructor(private userRepository: UserRepository) {}
 
   async register(userData: UserInformation) {
     const { email, name, password } = userData;
@@ -35,7 +34,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    this._emailjsWelocmeEmail(newUser.email, newUser.name);
+    // this._emailjsWelocmeEmail(newUser.email, newUser.name);
 
     return {
       user: {
@@ -53,34 +52,21 @@ export class AuthService {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new Error("User already exists");
+      throw new Error("User not found");
     }
 
     this._isAccountLocked(user);
 
-    // console.log(this._isAccountLocked(user));
-
-    const isPasswordValid = await this._comparePassword(
-      password,
-      user.password
-    );
-
-    // console.log("Is password valid: ", isPasswordValid);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     await this._loginAttempts(user, isPasswordValid);
 
-    // console.log("Login attempts reset or successful login.", await this._loginAttempts(user, isPasswordValid));
-
-    const { twoFactorCode, twoFactorExpires } = await this._generate2FACode(user);
-
-    // console.log("Console log of user twoFactor: ", twoFactorCode, twoFactorExpires);
-
-
-    this._emailjs2FACodeEmail(
-      user.email,
-      user.name,
-      twoFactorCode
+    const { twoFactorCode, twoFactorExpires } = await this._generate2FACode(
+      user
     );
+
+
+    // this._emailjs2FACodeEmail(user.email, user.name, twoFactorCode);
 
     return {
       user: {
@@ -108,19 +94,27 @@ export class AuthService {
       throw new Error("2FA not enabled");
     }
 
-    const validation = verify2FACode(code, user.twoFactorCode, user.twoFactorExpires);
+    const validation = verify2FACode(
+      code,
+      user.twoFactorCode,
+      user.twoFactorExpires
+    );
 
-    if(!validation.isValid){
+    if (!validation.isValid) {
       throw new Error(validation.message);
     }
 
-    await this.userRepository.updateUser(user.email, {
-      isVerified: true,
-      updatedAt: new Date(),
-    }, {
-      twoFactorCode: "",
-      twoFactorExpires: new Date(0),
-    });
+    await this.userRepository.updateUser(
+      user.email,
+      {
+        isVerified: true,
+        updatedAt: new Date(),
+      },
+      {
+        twoFactorCode: "",
+        twoFactorExpires: new Date(0),
+      }
+    );
 
     const tokenPayload: Payload = {
       userId: user._id.toString(),
@@ -144,55 +138,45 @@ export class AuthService {
     };
   }
 
-  private async _emailjsWelocmeEmail(email: string, name: string) {
-    try {
-      // await sendWelcomeEmail(email, userResponse.name);
-      const templateID = config.emailJsWelcomeTemplateId;
-      const dataToSend = {
-        user_name: name,
-      };
-      await sendByEmailJs(email, dataToSend, templateID);
-    } catch (emailError) {
-      console.error("Failed to send email:", emailError);
-    }
-  }
+  // private async _emailjsWelocmeEmail(email: string, name: string) {
+  //   try {
+  //     // await sendWelcomeEmail(email, userResponse.name);
+  //     const templateID = config.emailJsWelcomeTemplateId;
+  //     const dataToSend = {
+  //       user_name: name,
+  //     };
+  //     await sendByEmailJs(email, dataToSend, templateID);
+  //   } catch (emailError) {
+  //     console.error("Failed to send email:", emailError);
+  //   }
+  // }
 
-  private async _emailjs2FACodeEmail(
-    email: string,
-    name: string,
-    twoFactorCode: string
-  ) {
-    try {
-      // await sendWelcomeEmail(email, userResponse.name);
-      const templateID = config.emailJsLoginTemplateId;
-      const dataToSend = {
-        user_name: name,
-        code: twoFactorCode,
-      };
-      await sendByEmailJs(email, dataToSend, templateID);
-    } catch (emailError) {
-      console.error("Failed to send email:", emailError);
-    }
-  }
+  // private async _emailjs2FACodeEmail(
+  //   email: string,
+  //   name: string,
+  //   twoFactorCode: string
+  // ) {
+  //   try {
+  //     // await sendWelcomeEmail(email, userResponse.name);
+  //     const templateID = config.emailJsLoginTemplateId;
+  //     const dataToSend = {
+  //       user_name: name,
+  //       code: twoFactorCode,
+  //     };
+  //     await sendByEmailJs(email, dataToSend, templateID);
+  //   } catch (emailError) {
+  //     console.error("Failed to send email:", emailError);
+  //   }
+  // }
 
   private _isAccountLocked(user: UserInterface) {
     if (user.lockUntil && user.lockUntil > new Date()) {
-      const remainingMinutes = Math.ceil(
-        (user.lockUntil.getTime() - new Date().getTime()) / (1000 * 60)
-      );
       throw new Error(
-        `Account is locked. Try again in ${remainingMinutes} minutes`
+        "Account is locked due to multiple failed login attempts. Please try again in 15 minutes."
       );
-    }else {
-      return `Account is not locked.`;
+    } else {
+      return "Account is not locked.";
     }
-  }
-
-  private async _comparePassword(
-    password: string,
-    hashedPassword: string
-  ): Promise<boolean> {
-    return await bcrypt.compare(password, hashedPassword);
   }
 
   private async _loginAttempts(user: UserInterface, isPasswordValid: boolean) {
@@ -209,7 +193,6 @@ export class AuthService {
       }
       await this.userRepository.updateUser(user.email, updateData);
 
-      // console.log("Console log of User", User);
       throw new Error("Invalid credentials");
     } else {
       return `Login successful for user: ${user.email}`;
@@ -221,9 +204,6 @@ export class AuthService {
       const twoFactorCode = generate2FACode();
       const twoFactorExpires = get2FAExpirationTime(15);
 
-      // console.log("Console log of twoFactorCode: ", twoFactorCode);
-      // console.log("Console log of twoFactorExpires: ", twoFactorExpires);
-
       await this.userRepository.updateUser(user.email, {
         twoFactorCode: twoFactorCode,
         twoFactorExpires: twoFactorExpires,
@@ -233,8 +213,5 @@ export class AuthService {
       });
       return { twoFactorCode, twoFactorExpires };
     }
-
   }
-
-
 }

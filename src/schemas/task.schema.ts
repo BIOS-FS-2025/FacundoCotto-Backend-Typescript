@@ -95,22 +95,22 @@ export const editTaskSchema = z.object({
   ).optional(),
 });
 
-export const TaskIdValidations = z.object({
+export const taskIdValidations = z.object({
   id: z
   .string()
   .trim()
   .min(1, { message: "Task ID is required" }),
 });
 
-export const UserIdValidations = z.object({
+export const userIdValidations = z.object({
   userId: z
   .string()
   .trim()
   .min(1, { message: "User ID is required" }),
 });
 
-export type UserId = z.infer<typeof UserIdValidations>;
-export type TaskId = z.infer<typeof TaskIdValidations>;
+export type UserId = z.infer<typeof userIdValidations>;
+export type TaskId = z.infer<typeof taskIdValidations>;
 export type Task = z.infer<typeof createTaskSchema>;
 export type EditTask = z.infer<typeof editTaskSchema>;
 

@@ -24,7 +24,7 @@ export const verify2FACode = (inputCode: string, storedCode: string, expirationT
         return {
             isValid: false,
             error: ERRORS.EXPIRED_CODE,
-            message: "The 2FA code has expired"
+            message: "Invalid or expired 2FA code"
         }
     }
 
@@ -33,7 +33,7 @@ export const verify2FACode = (inputCode: string, storedCode: string, expirationT
         return {
             isValid: false,
             error: ERRORS.INVALID_CODE,
-            message: "The 2FA is incorrect"
+            message: "Invalid or expired 2FA code"
         }
     }
 

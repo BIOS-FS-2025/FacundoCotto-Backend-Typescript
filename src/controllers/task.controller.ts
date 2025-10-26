@@ -1,9 +1,6 @@
 import { TaskService } from "./../services/task.service";
-import { TaskIdValidations } from "./../schemas/task.schema";
-import { safeParse } from "zod";
 import { ERRORS } from "../config/env";
 import { Request, Response } from "express";
-import { get } from "http";
 
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
@@ -41,13 +38,6 @@ export class TaskController {
     try {
       const tasks = await this.taskService.getTasksByUser(userId, filters);
 
-      if (!tasks || tasks.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "No tasks found",
-        });
-      }
-
       res.status(200).json({
         success: true,
         message: "Tasks retrieved successfully",
@@ -60,24 +50,17 @@ export class TaskController {
       res.status(500).json({
         success: false,
         message: "Internal Server Error",
-        error: ERRORS.INTERNAL_ERROR,
       });
     }
   };
 
+  // Get task by id
   getTaskById = async (req: Request, res: Response) => {
     const userId = req.userId as string;
     const _id = req.params.id;
 
     try {
       const task = await this.taskService.getTaskById(_id, userId);
-
-      if (!task) {
-        return res.status(404).json({
-          success: false,
-          message: "Task not found",
-        });
-      }
 
       res.status(200).json({
         success: true,
@@ -86,16 +69,27 @@ export class TaskController {
           task,
         },
       });
-    } catch (error) {
-      console.error("Failed to retrieve task:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: ERRORS.INTERNAL_ERROR,
-      });
+    } catch (error: any) {
+      if (error.message === "Task not found") {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      } else if (error.message === "Internal server error") {
+        return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
     }
   };
 
+  // Edit a task
   editTask = async (req: Request, res: Response) => {
     const userId = req.userId as string;
     const taskData = req.body;
@@ -104,13 +98,6 @@ export class TaskController {
     try {
       const editedTask = await this.taskService.editTask(userId, _id, taskData);
 
-      if (!editedTask) {
-        return res.status(404).json({
-          success: false,
-          message: "Task not found",
-        });
-      }
-
       res.status(200).json({
         success: true,
         message: "Task updated successfully",
@@ -118,28 +105,34 @@ export class TaskController {
           task: editedTask,
         },
       });
-    } catch (error) {
-      console.error("Failed to edit task:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: ERRORS.INTERNAL_ERROR,
-      });
+    } catch (error: any) {
+      if (error.message === "Task not found") {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      } else if (error.message === "Internal server error") {
+        return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
     }
   };
 
+  // Delete a task
   deleteTask = async (req: Request, res: Response) => {
     const userId = req.userId as string;
     const _id = req.params.id;
 
     try {
       const deletedTask = await this.taskService.deleteTask(_id, userId);
-      if (!deletedTask) {
-        return res.status(404).json({
-          success: false,
-          message: "Task not found",
-        });
-      }
+
       res.status(200).json({
         success: true,
         message: "Task deleted successfully",
@@ -147,13 +140,23 @@ export class TaskController {
           task: deletedTask,
         },
       });
-    } catch (error) {
-      console.error("Failed to delete task:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: ERRORS.INTERNAL_ERROR,
-      });
+    } catch (error: any) {
+      if (error.message === "Task not found") {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      } else if (error.message === "Internal server error") {
+        return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
     }
   };
 }

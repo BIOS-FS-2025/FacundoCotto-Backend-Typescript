@@ -2,7 +2,6 @@ import { TaskInterface } from "../models/task.model";
 import { TaskRepository } from "../repositories/task.repository";
 import { TaskFilter, TaskInput } from "../types/task.types";
 
-
 export class TaskService {
   constructor(private taskRepository: TaskRepository) {}
 
@@ -12,7 +11,7 @@ export class TaskService {
     userId: string
   ): Promise<TaskInterface | null> {
     const task = await this.taskRepository.getTaskById(taskId, userId);
-    if (!task) return null;
+    if (!task) { throw new Error("Task not found"); }
 
     // console.log(author)
 
@@ -46,37 +45,40 @@ export class TaskService {
   }
 
   // Get tasks by user
-  async getTasksByUser(userId: string, filters: TaskFilter): Promise<TaskInterface[] | []> {
-
+  async getTasksByUser(
+    userId: string,
+    filters: TaskFilter
+  ): Promise<TaskInterface[] | []> {
     const tasks = await this.taskRepository.getTasksByUser(userId, filters);
 
-    if (!tasks || tasks.length === 0) return [];
+    if (!tasks || tasks.length === 0) throw new Error("No tasks found");
 
     return tasks.map((post) => ({
       ...post,
     }));
+  }
 
-}
-
+  // Edit a task
   async editTask(
     userId: string,
     taskId: string,
     taskData: Partial<TaskInput>
   ): Promise<TaskInterface | null> {
     const getTask = await this.getTaskById(taskId, userId);
-    if (!getTask) return null;
+    if (!getTask) throw new Error("Task not found");
 
     getTask.updatedAt = new Date();
 
     return await this.taskRepository.editTask(taskId, taskData);
   }
-  
+
+  // Delete a task
   async deleteTask(
     taskId: string,
     userId: string
   ): Promise<TaskInterface | null> {
     const getTask = await this.getTaskById(taskId, userId);
-    if (!getTask) return null;
+    if (!getTask) throw new Error("Task not found");
 
     const deletedTask = await this.taskRepository.deleteTask(taskId);
     return deletedTask;

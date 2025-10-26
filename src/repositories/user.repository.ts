@@ -32,5 +32,4 @@ export class UserRepository {
   async findById(id: string | ObjectId): Promise<UserInterface | null> {
     return await User.findById(id);
   }
-
 }

@@ -1,8 +1,6 @@
-import { ObjectId, Query } from "mongoose";
+import { ObjectId } from "mongoose";
 import { Task, TaskInterface } from "../models/task.model";
-import { User } from "../models/user.model";
 import { TaskFilter, TaskInput } from "../types/task.types";
-import { TaskId } from "../schemas/task.schema";
 
 export class TaskRepository {
 

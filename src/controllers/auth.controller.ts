@@ -24,8 +24,14 @@ export class AuthController {
       res
         .status(201)
         .json({ message: "User registered successfully", data: user });
-    } catch (error) {
-      res.status(500).json({ message: "register failed, user already exists" });
+    } catch (error: any) {
+      if (error.message === "User already exists") {
+        res.status(409).json({ message: error.message });
+      } else if (error.message === "Internal server error") {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: error.message });
+      }
     }
   };
 
@@ -36,25 +42,27 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      // console.log("Login attempt for email: ", email);
-      // console.log("Login attempt with password: ", password);
-
       const result = await this.authService.login({ email, password });
 
-      // console.log("console log of result: ", result);
-
-      res
-        .status(201)
-        .json({
-          message: "Login success and 2FA code sent to your email",
-          data: result,
-        });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Login failed. Please check your credentials and try again.",
-        });
+      res.status(200).json({
+        message: "Login success and 2FA code sent to your email",
+        data: result,
+      });
+    } catch (error: any) {
+      if (error.message === "User not found") {
+        res.status(409).json({ message: error.message });
+      } else if (
+        error.message ===
+        "Account is locked due to multiple failed login attempts. Please try again in 15 minutes."
+      ) {
+        res.status(423).json({ message: error.message });
+      } else if (error.message === "Invalid credentials") {
+        res.status(401).json({ message: error.message });
+      } else if (error.message === "Internal server error") {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: error.message });
+      }
     }
   };
 
@@ -70,15 +78,27 @@ export class AuthController {
       const { refreshToken, accessToken } = result;
 
       if (result) {
-        res.status(200).json({ message: "2FA verification successful", refreshToken, accessToken });
+        res
+          .status(200)
+          .json({
+            message: "2FA verification successful",
+            refreshToken,
+            accessToken,
+          });
       } else {
         res.status(400).json({ message: "Invalid 2FA code" });
       }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "2FA verification failed. Please try again." });
-      console.error("2FA verification error: ", error);
+    } catch (error: any) {
+      if (error.message === "User not found") {
+        res.status(409).json({ message: error.message });
+      } else if (error.message === "Invalid or expired 2FA code") {
+        res.status(401).json({ message: error.message });
+      } else if (error.message === "Internal server error") {
+        res.status(500).json({ message: error.message });
+      } 
+      else {
+        res.status(400).json({ message: error.message });
+      }
     }
   };
 }
