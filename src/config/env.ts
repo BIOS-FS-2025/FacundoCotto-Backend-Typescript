@@ -8,7 +8,7 @@ export const config = {
   dbUri: process.env.DB_URI ?? "mongodb://localhost:27017/mongodb-ts-app",
   jwtSecret: process.env.JWT_SECRET ?? "default_secret",
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET ?? "default_refresh_secret",
-  twoFAExpirationMinutes: Number(process.env.TWO_FA_EXPIRATON_MINUTES) ?? 10,
+  twoFAExpirationMinutes: Number(process.env.TWO_FA_EXPIRATION_MINUTES) ?? 10,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "10m",
   emailJsServiceId: process.env.EMAIL_JS_SERVICE_ID ?? "",
   emailJsUrl: process.env.EMAIL_JS_URL ?? "https://api.emailjs.com/api/v1.0/email/send",
