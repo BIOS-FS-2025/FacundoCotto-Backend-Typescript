@@ -29,6 +29,13 @@ export interface TaskInput {
     subject?: Subject[];
 }
 
+export interface TaskResponse extends TaskInput {
+    _id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    completed: boolean;
+}
+
 export interface TaskFilter{
     page?: number;
     limit?: number;

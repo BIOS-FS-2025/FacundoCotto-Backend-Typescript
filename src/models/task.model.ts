@@ -8,10 +8,6 @@ export interface TaskInterface extends Document {
     description: string;
     completed: boolean;
     userId: mongoose.Types.ObjectId;
-    author: {
-        name: string | undefined;
-        email: string | undefined; 
-    }
     dueDate: Date | null;
     priority: Priority[];
     subject: Subject[];

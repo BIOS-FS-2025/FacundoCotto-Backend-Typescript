@@ -1,34 +1,30 @@
 import { TaskInterface } from "../models/task.model";
 import { TaskRepository } from "../repositories/task.repository";
-import { UserRepository } from "../repositories/user.repository";
-import { TaskFilter, TaskInput } from "../types/task.types";
+import { TaskFilter, TaskInput, TaskResponse } from "../types/task.types";
 
 export class TaskService {
-  constructor(private taskRepository: TaskRepository,) {}
+  constructor(private taskRepository: TaskRepository) {}
 
   // Get tasks by id
   async getTaskById(
     taskId: string,
     userId: string
-  ): Promise<TaskInterface | null> {
+  ): Promise<TaskResponse | null> {
     const task = await this.taskRepository.getTaskById(taskId, userId);
-    if (!task) { throw new Error("Task not found"); }
-
-    // console.log(author)
-
-    const { email, name } = task.author || {
-      email: undefined,
-      name: undefined,
-    };
-
-    console.log(email, name);
+    if (!task) {
+      throw new Error("Task not found");
+    }
 
     return {
-      ...task,
-      author: {
-        name,
-        email,
-      },
+      _id: task._id.toString(),
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      subject: task.subject,
+      completed: task.completed,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
     };
   }
 
@@ -36,8 +32,7 @@ export class TaskService {
   async createTask(
     taskData: TaskInput,
     userId: string
-  ): Promise<TaskInterface | null> {
-
+  ): Promise<TaskResponse | null> {
     const newTask = await this.taskRepository.createTask({
       ...taskData,
       userId,
@@ -50,13 +45,21 @@ export class TaskService {
   async getTasksByUser(
     userId: string,
     filters: TaskFilter
-  ): Promise<TaskInterface[] | []> {
+  ): Promise<TaskResponse[] | []> {
     const tasks = await this.taskRepository.getTasksByUser(userId, filters);
 
     if (!tasks || tasks.length === 0) throw new Error("No tasks found");
 
     return tasks.map((post) => ({
-      ...post,
+      _id: post._id.toString(),
+      title: post.title,
+      description: post.description,
+      dueDate: post.dueDate,
+      priority: post.priority,
+      subject: post.subject,
+      completed: post.completed,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
     }));
   }
 
