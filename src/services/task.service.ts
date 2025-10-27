@@ -1,9 +1,10 @@
 import { TaskInterface } from "../models/task.model";
 import { TaskRepository } from "../repositories/task.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { TaskFilter, TaskInput } from "../types/task.types";
 
 export class TaskService {
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(private taskRepository: TaskRepository,) {}
 
   // Get tasks by id
   async getTaskById(
@@ -20,7 +21,7 @@ export class TaskService {
       name: undefined,
     };
 
-    // console.log(email, name);
+    console.log(email, name);
 
     return {
       ...task,
@@ -36,6 +37,7 @@ export class TaskService {
     taskData: TaskInput,
     userId: string
   ): Promise<TaskInterface | null> {
+
     const newTask = await this.taskRepository.createTask({
       ...taskData,
       userId,
@@ -80,7 +82,6 @@ export class TaskService {
     const getTask = await this.getTaskById(taskId, userId);
     if (!getTask) throw new Error("Task not found");
 
-    const deletedTask = await this.taskRepository.deleteTask(taskId);
-    return deletedTask;
+    return await this.taskRepository.deleteTask(taskId);
   }
 }

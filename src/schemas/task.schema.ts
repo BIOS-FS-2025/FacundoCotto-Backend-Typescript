@@ -102,14 +102,6 @@ export const taskIdValidations = z.object({
   .min(1, { message: "Task ID is required" }),
 });
 
-export const userIdValidations = z.object({
-  userId: z
-  .string()
-  .trim()
-  .min(1, { message: "User ID is required" }),
-});
-
-export type UserId = z.infer<typeof userIdValidations>;
 export type TaskId = z.infer<typeof taskIdValidations>;
 export type Task = z.infer<typeof createTaskSchema>;
 export type EditTask = z.infer<typeof editTaskSchema>;

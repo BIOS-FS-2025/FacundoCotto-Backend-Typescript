@@ -10,7 +10,7 @@ export interface UserInterface extends Document {
   twoFactorExpires: Date | null;
   loginAttempts: number;
   lockUntil: Date | null;
-  role: "user";
+  role: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }

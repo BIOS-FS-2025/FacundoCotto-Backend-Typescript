@@ -33,9 +33,29 @@ export interface Payload {
 }
 
 export interface Projection {
-  password: 0 | 1;
-  twoFactorCode: 0 | 1;
-  twoFactorExpires: 0 | 1;
+  password?: 0 | 1;
+  twoFactorCode?: 0 | 1;
+  twoFactorExpires?: 0 | 1;
+}
+
+export interface UserProjection {
+  password?: 0 | 1;
+  twoFactorCode?: 0 | 1;
+  twoFactorExpires?: 0 | 1;
+  loginAttempts?: 0 | 1;
+  lockUntil?: 0 | 1;
+  _id?: 0 | 1;
+  isVerified?: 0 | 1;
+  updatedAt?: 0 | 1;
+  __v?: 0 | 1;
+}
+
+export interface UserFilter {
+  sortBy?: "name" | "createdAt";
+  sortOrder?: "asc" | "desc";
+  limit?: number;
+  page?: number;
+  search?: string;
 }
 
 // Extend Express Request to include user and userId

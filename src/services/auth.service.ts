@@ -104,7 +104,7 @@ export class AuthService {
       throw new Error(validation.message);
     }
 
-    await this.userRepository.updateUser(
+    await this.userRepository.updateUserByEmail(
       user.email,
       {
         isVerified: true,
@@ -191,7 +191,7 @@ export class AuthService {
         updateData.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
         updateData.loginAttempts = 0;
       }
-      await this.userRepository.updateUser(user.email, updateData);
+      await this.userRepository.updateUserByEmail(user.email, updateData);
 
       throw new Error("Invalid credentials");
     } else {
@@ -204,7 +204,7 @@ export class AuthService {
       const twoFactorCode = generate2FACode();
       const twoFactorExpires = get2FAExpirationTime(15);
 
-      await this.userRepository.updateUser(user.email, {
+      await this.userRepository.updateUserByEmail(user.email, {
         twoFactorCode: twoFactorCode,
         twoFactorExpires: twoFactorExpires,
         loginAttempts: 0,

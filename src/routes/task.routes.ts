@@ -1,7 +1,8 @@
 import { TaskController } from '../controllers/task.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 import { validate, validateId } from '../middlewares/validate.middleware';
-import { createTaskSchema, editTaskSchema, taskIdValidations, userIdValidations } from '../schemas/task.schema';
+import { createTaskSchema, editTaskSchema, taskIdValidations } from '../schemas/task.schema';
+import { userIdValidations } from '../schemas/auth.schema';
 import { TaskService } from '../services/task.service';
 import { TaskRepository } from './../repositories/task.repository';
 import { Router } from "express";
