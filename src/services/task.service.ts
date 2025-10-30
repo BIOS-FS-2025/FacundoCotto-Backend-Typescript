@@ -33,16 +33,22 @@ export class TaskService {
     taskData: TaskInput,
     userId: string
   ): Promise<TaskResponse | null> {
+
+    const { title } = taskData;
+
+    const duplicateTask = await this.taskRepository.getTaskByTitleAndUser(title, userId);
+
+    console.log("Duplicate Task Check:", duplicateTask);
+
+    if (duplicateTask) {
+      throw new Error("Task with the same title already exists for this user");
+    }
+
     const newTask = await this.taskRepository.createTask({
       ...taskData,
       userId,
     });
 
-    const duplicateTask = await this.taskRepository.getTaskByTitleAndUser(newTask.title, userId);
-
-    if (newTask.title === duplicateTask?.title) {
-      throw new Error("Task with the same title already exists for this user");
-    }
 
     return await this.getTaskById(newTask._id.toString(), userId);
   }
