@@ -15,6 +15,11 @@ npm install -D typescript @types/express @types/node @types/jsonwebtoken @types/
 npm install -D @types/morgan @types/mongoose @types/swagger-ui-express @types/swagger-jsdoc ts-node-dev
 ```
 
+### Init Typescript
+```bash
+npx tsc –init
+```
+
 ### Comands
 ```bash
 npm run dev -> start the project in dev mode
@@ -41,40 +46,40 @@ configuraciones sensibles fuera del código.
 Un middleware para Express que se usa para registrar (logging) detalles de las peticiones HTTP 
 en la consola, útil para depuración.
 
-## [Chalk]()
+## [Chalk](https://www.npmjs.com/package/chalk)
 
 Una librería simple para dar estilo a la salida de texto en la consola de Node.js con colores.
 
-## [Bcryptjs]()
+## [Bcryptjs](http://npmjs.com/package/bcryptjs)
 
 Una librería para hashing de contraseñas; se usa para almacenar contraseñas de forma segura 
 en una base de datos.
 
-## [Jsonwebtoken]()
+## [Jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
 
 Una implementación del estándar JSON Web Token (JWT), utilizada para crear tokens de acceso 
 seguros y sin estado para la autenticación de usuarios.
 
-## [Zod]()
+## [Zod](https://zod.dev/)
 
 Una librería de validación de esquemas (schemas) para TypeScript/JavaScript. Permite definir 
 la forma de los datos esperados y valida si los datos recibidos cumplen con esa estructura
 
-## [Cors]()
+## [Cors](https://expressjs.com/en/resources/middleware/cors.html)
 
 Un middleware de Express que habilita la Compartición de Recursos de Origen Cruzado (CORS), 
 permitiendo que navegadores accedan a la API desde dominios diferentes.
 
-## [Axios]()
+## [Axios](https://axios-http.com/docs/intro)
 
 Una librería popular para realizar peticiones HTTP (clientes) desde el navegador o Node.js.
 
-## [Mongoose]()
+## [Mongoose](https://mongoosejs.com/)
 
 Es una librería de modelado de objetos para MongoDB (ODM) para Node.js. Proporciona una
  forma orientada a esquemas de interactuar con MongoDB.
 
-## [Swagger]()
+## [Swagger](https://swagger.io/)
 
 Es un conjunto de herramientas de código abierto basadas en la especificación OpenAPI, 
 que se utiliza para diseñar, construir, documentar y consumir APIs RESTful.

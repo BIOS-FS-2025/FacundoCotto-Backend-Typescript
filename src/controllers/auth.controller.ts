@@ -50,7 +50,7 @@ export class AuthController {
       });
     } catch (error: any) {
       if (error.message === "User not found") {
-        res.status(409).json({ message: error.message });
+        res.status(404).json({ message: error.message });
       } else if (
         error.message ===
         "Account is locked due to multiple failed login attempts. Please try again in 15 minutes."
@@ -90,7 +90,7 @@ export class AuthController {
       }
     } catch (error: any) {
       if (error.message === "User not found") {
-        res.status(409).json({ message: error.message });
+        res.status(404).json({ message: error.message });
       } else if (error.message === "Invalid or expired 2FA code") {
         res.status(401).json({ message: error.message });
       } else if (error.message === "Internal server error") {

@@ -24,7 +24,7 @@ const swaggerOptions: swaggerJSDoc.Options = {
         description: "Development server",
       },
       {
-        url: `https://api.yourdomain.com`,
+        url: `https://mytasks.com`,
         description: "Production Server",
       },
     ],
@@ -36,6 +36,13 @@ const swaggerOptions: swaggerJSDoc.Options = {
           bearerFormat: "JWT",
           description: "Enter your JWT token that you received after login",
         },
+        roles: {
+          type: "apiKey",
+          in: "header",
+          name: "role",
+          description:
+            "Role-based access control. Use 'admin' for admin routes.",
+        }
       },
       schemas: {
         User: {
@@ -453,6 +460,61 @@ const swaggerOptions: swaggerJSDoc.Options = {
             },
           },
         },
+        CreateUserResponse: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Response message",
+              example: "User created successfully",
+            },
+            user: {
+              $ref: "#/components/schemas/User",
+            },
+          },
+        },
+        GetAllUsersResponse: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Response message",
+              example: "Users retrieved successfully",
+            },
+            data: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/User",
+              },
+            },
+          },
+        },
+        UpdateUserResponse: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Response message",
+              example: "User updated successfully",
+            },
+            data: {
+              $ref: "#/components/schemas/User",
+            },
+          },
+        },
+        DeleteUserResponse: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Response message",
+              example: "User deleted successfully",
+            },
+            data: {
+              $ref: "#/components/schemas/User",
+            },
+          },
+        },
         UserExistsError: {
           type: "object",
           properties: {
@@ -652,6 +714,70 @@ const swaggerOptions: swaggerJSDoc.Options = {
             },
           },
         },
+        TaskExistsError: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Error message",
+              example: "Task with the same title already exists for this user",
+            },
+          },
+        },
+        NoUsersFoundError: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Error message",
+              example: "No users found",
+            },
+            errors: {
+              type: "array",
+              description: "Details of validation errors",
+              items: {
+                type: "object",
+                properties: {
+                  field: {
+                    type: "string",
+                    example: "name",
+                  },
+                  message: {
+                    type: "string",
+                    example: "No users with the specified name found",
+                  },
+                },
+              },
+            },
+          },
+        },
+        DeleteAdminUserError: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "Error message",
+              example: "Cannot delete admin user",
+            },
+            errors: {
+              type: "array",
+              description: "Details of validation errors",
+              items: {
+                type: "object",
+                properties: {
+                  field: {
+                    type: "string",
+                    example: "id",
+                  },
+                  message: {
+                    type: "string",
+                    example: "Cannot delete admin users",
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     security: [
@@ -663,6 +789,7 @@ const swaggerOptions: swaggerJSDoc.Options = {
             bearerFormat: "JWT",
           },
         ],
+        roles: ["admin"],
       },
     ],
     tags: [
@@ -674,6 +801,10 @@ const swaggerOptions: swaggerJSDoc.Options = {
         name: "Tasks",
         description: "Endpoints for task management",
       },
+      {
+        name: "Admin",
+        description: "Endpoints for admin user management",
+      }
     ],
   },
   apis: ["./src/docs/*.ts", "./src/routes/*.ts"],

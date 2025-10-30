@@ -19,12 +19,23 @@ export class TaskController {
           task: newTask,
         },
       });
-    } catch (error) {
-      console.error("Failed to create task:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-      });
+    } catch (error: any) {
+      if (
+        error.message ===
+        "Task with the same title already exists for this user"
+      ) {
+        console.error("Failed to create task:", error);
+        res.status(409).json({
+          success: false,
+          message: "Task with the same title already exists for this user",
+        });
+      } else {
+        console.error("Failed to create task:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
     }
   };
 

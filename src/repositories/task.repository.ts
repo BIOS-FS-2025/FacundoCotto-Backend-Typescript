@@ -70,9 +70,7 @@ export class TaskRepository {
         
     }
     
-    // Get tasks by due date
-    
-    // Get tasks by priority
-    
-    // Get tasks by subject
+    async getTaskByTitleAndUser(title: string, userId: string): Promise<TaskInterface | null> {
+        return await Task.findOne({ title, userId });
+      }
 }

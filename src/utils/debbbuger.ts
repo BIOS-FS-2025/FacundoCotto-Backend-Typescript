@@ -21,6 +21,7 @@ export const debugMorgan = (
 
   let statusColored;
   const statusCode = status ? parseInt(status, 10) : 0;
+  console.log("Status code:", statusCode);
   if (statusCode >= 500) {
     statusColored = chalk.bold.red(status);
   } else if (statusCode >= 400) {

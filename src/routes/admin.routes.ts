@@ -5,7 +5,6 @@ import { validate } from "../middlewares/validate.middleware";
 import { AdminService } from '../services/admin.service';
 import { UserRepository } from '../repositories/user.repository';
 import { requireAdmin } from "../middlewares/admin.middleware";
-import { userIdValidations } from '../schemas/auth.schema';
 
 const router = Router();
 

@@ -33,7 +33,7 @@ morgan.token("body", (req: Request) => {
 });
 
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan(debugMorgan as any));
+  app.use(morgan(debugMorgan));
 }
 
 app.use("/api/v1", routes);

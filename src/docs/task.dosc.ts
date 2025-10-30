@@ -1,9 +1,15 @@
 /**
  * @swagger
+ * tags:
+ *   name: Tasks
+ *   description: Endpoints for task management
+ */
+
+/**
+ * @swagger
  * /api/v1/tasks/create:
  *   post:
- *     tags:
- *       - Tasks
+ *     tags: [Tasks]
  *     summary: Create a new task
  *     security:
  *       - bearerAuth: []
@@ -26,14 +32,19 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/InvalidTokenError'
+ *     409:
+ *       description: Task with the same title already exists for this user
+ *       content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TaskExistsError'
  */
 
 /**
  * @swagger
  *  /api/v1/tasks/{userId}:
  *   get:
- *     tags:
- *       - Tasks
+ *     tags: [Tasks]
  *     summary: Get all tasks for the authenticated user
  *     security:
  *       - bearerAuth: []
@@ -120,8 +131,7 @@
  * @swagger
  * /api/v1/tasks/id/{id}:
  *   get:
- *     tags:
- *       - Tasks
+ *     tags: [Tasks]
  *     summary: Get a task by ID
  *     security:
  *       - bearerAuth: []
@@ -163,8 +173,7 @@
  * @swagger
  * /api/v1/tasks/edit/{id}:
  *   put:
- *     tags:
- *       - Tasks
+ *     tags: [Tasks]
  *     summary: Edit a task
  *     security:
  *       - bearerAuth: []
@@ -213,8 +222,7 @@
  * @swagger
  * /api/v1/tasks/delete/{id}:
  *   delete:
- *     tags:
- *       - Tasks
+ *     tags: [Tasks]
  *     summary: Delete a task
  *     security:
  *       - bearerAuth: []

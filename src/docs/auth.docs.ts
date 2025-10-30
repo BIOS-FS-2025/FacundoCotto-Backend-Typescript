@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Authentication
- *   description: Endpoints de autenticación y gestión de usuarios
+ *   description: Endpoints of authentication and user management
  */
 
 /**
@@ -12,6 +12,7 @@
  *     summary: Register a new user
  *     description: Creates a new user account with email, password, and name. The email must be unique.
  *     tags: [Authentication]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -52,6 +53,7 @@
  *     summary: Log in a user
  *     description: Authenticates a user with email and password, returns a JWT token valid for 24 hours.
  *     tags: [Authentication]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -65,7 +67,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/LoginResponse'
- *       409:
+ *       404:
  *         description: User not found
  *         content:
  *           application/json:
@@ -98,6 +100,7 @@
  *     summary: Verify 2FA code
  *     description: Verifies the 2FA code sent to the user's email.
  *     tags: [Authentication]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -111,7 +114,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/VerifyCodeResponse'
- *       409:
+ *       404:
  *         description: User not found
  *         content:
  *           application/json:

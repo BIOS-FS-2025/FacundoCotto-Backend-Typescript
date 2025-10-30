@@ -38,6 +38,12 @@ export class TaskService {
       userId,
     });
 
+    const duplicateTask = await this.taskRepository.getTaskByTitleAndUser(newTask.title, userId);
+
+    if (newTask.title === duplicateTask?.title) {
+      throw new Error("Task with the same title already exists for this user");
+    }
+
     return await this.getTaskById(newTask._id.toString(), userId);
   }
 
